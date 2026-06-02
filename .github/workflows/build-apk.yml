@@ -1,3 +1,4 @@
+yaml
 name: Build Android APK
 
 on:
@@ -7,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
@@ -19,16 +20,19 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-    - name: Install dependencies
+    - name: Install system dependencies
       run: |
         sudo apt-get update -qq
-        sudo apt-get install -y -qq build-essential git unzip zip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libtinfo5 cmake libffi-dev libssl-dev
+        sudo apt-get install -y -qq build-essential git unzip zip autoconf libtool pkg-config zlib1g-dev libncurses5-dev cmake libffi-dev libssl-dev
+    - name: Install Python dependencies
+      run: |
         pip install --upgrade pip
         pip install kivy buildozer cython
     - name: Build APK
-      run: buildozer android debug 2>&1 | tail -80
+      run: buildozer android debug 2>&1 | tail -100
     - name: Upload APK
       uses: actions/upload-artifact@v4
+      if: success()
       with:
         name: doudizhu-apk
         path: bin/*.apk
